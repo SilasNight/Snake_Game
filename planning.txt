@@ -1,0 +1,19 @@
+# Let's make Snake
+
+# Cool Things
+Difficulty settings, Change speed + map size
+Music settings? XD, Find random music to use
+Colour settings?
+Score system
+boundry settings walls/no walls
+Accounts
+SQL to handle the accounts/settings/leaderboard/person-best
+
+# Needed things
+Random food locations
+Food not spawning on the snake
+Making the snake.
+The snake can't touch itself
+Snake grows as it eats
+Snake can't touch walls
+
