@@ -8,6 +8,8 @@ Score system
 boundry settings walls/no walls
 Accounts
 SQL to handle the accounts/settings/leaderboard/person-best
+patterns for the snake that are unlocked based on total score
+
 
 # Needed things
 Random food locations
