@@ -21,9 +21,10 @@ class Game:
         self.hard = 26
         self.difficulty = self.easy
         self.create_grid(10)
-        self.game_window.create_rectangle(5, 5, 795, 795, width=10)
         self.block_size = 790/self.difficulty
         self.position = [0, 0]
+
+        self.last_drawn = self.draw_block(self.position)
 
         self.draw_grid()
 
@@ -36,21 +37,21 @@ class Game:
         self.window.mainloop()
 
     def redraw(self):
-        self.game_window.delete("all")
-        self.draw_block(self.position)
+        self.game_window.delete(self.last_drawn)
+        self.last_drawn = self.draw_block(self.position)
 
-    def draw_block(self, position: list, colour: str = "black") -> int:
+    def draw_block(self, position: list, colour: str = "blue") -> int:
         x, y = position
-        block_size = self.block_size - 6
+        block = self.block_size
         # So that the grid corresponds to the size of the canvas
-        x *= block_size
-        y *= block_size
+        x *= block
+        y *= block
 
         # For the border... Should be more
         x += 8
         y += 8
 
-        rectangle_id = self.game_window.create_rectangle(x, y, x + block_size, y + block_size)
+        rectangle_id = self.game_window.create_rectangle(x + 1, y + 1, x + block - 6, y + block - 6, fill=colour)
 
         return rectangle_id
 
