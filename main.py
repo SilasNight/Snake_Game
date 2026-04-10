@@ -16,10 +16,10 @@ class Game:
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
 
-        self.easy = 16
+        self.small = 16
         self.medium = 21
-        self.hard = 26
-        self.difficulty = self.easy
+        self.Large = 26
+        self.difficulty = self.small
         self.create_grid(10)
         self.block_size = 790/self.difficulty
         self.position = [0, 0]
@@ -48,10 +48,10 @@ class Game:
         y *= block
 
         # For the border... Should be more
-        x += 8
-        y += 8
+        x += 5
+        y += 5
 
-        rectangle_id = self.game_window.create_rectangle(x + 1, y + 1, x + block - 6, y + block - 6, fill=colour)
+        rectangle_id = self.game_window.create_rectangle(x + 2, y + 2, x + block - 2, y + block - 2, fill=colour)
 
         return rectangle_id
 
