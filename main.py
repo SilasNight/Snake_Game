@@ -19,12 +19,16 @@ class Game:
         self.small = 16
         self.medium = 21
         self.Large = 26
+
         self.difficulty = self.small
         self.create_grid(10)
         self.block_size = 790/self.difficulty
         self.position = [0, 0]
 
         self.last_drawn = self.draw_block(self.position)
+
+        self.tail_start_length = 4
+        self.tail_segments = self.generate_tail()
 
         self.draw_grid()
 
@@ -36,9 +40,39 @@ class Game:
 
         self.window.mainloop()
 
+    def move_tail(self):
+        for i in reversed(list(range(len(self.tail_segments)))):
+            if i == 0:
+                self.tail_segments[i][0] = self.position
+            else:
+                print(self.tail_segments[i][0])
+                self.tail_segments[i][0] = self.tail_segments[i - 1][0]
+                print(self.tail_segments[i][0])
+            old = self.tail_segments[i][1]
+            new = self.redraw_tail(old)
+            self.tail_segments[i][1] = new
+
+    def generate_tail(self):
+        output = []
+        for i in range(self.tail_length):
+            x, y = self.position
+
+            y += 1
+
+            y += i
+            print(x, y)
+            temp = self.draw_block([x, y])
+            output.append([[x, y], temp])
+        return output
+
     def redraw(self):
         self.game_window.delete(self.last_drawn)
         self.last_drawn = self.draw_block(self.position)
+
+    def redraw_tail(self, old):
+        self.game_window.delete(old)
+        new = self.draw_block(self.position)
+        return new
 
     def draw_block(self, position: list, colour: str = "blue") -> int:
         x, y = position
@@ -76,6 +110,7 @@ class Game:
         else:
             self.position[0] += 1
         self.redraw()
+        self.move_tail()
 
     def move_left(self):
         if self.position[0] == 0:
@@ -83,6 +118,7 @@ class Game:
         else:
             self.position[0] -= 1
         self.redraw()
+        self.move_tail()
 
     def move_up(self):
         if self.position[1] == 0:
@@ -90,6 +126,7 @@ class Game:
         else:
             self.position[1] -= 1
         self.redraw()
+        self.move_tail()
 
     def move_down(self):
         if self.position[1] == self.difficulty - 1:
@@ -97,6 +134,7 @@ class Game:
         else:
             self.position[1] += 1
         self.redraw()
+        self.move_tail()
 
     @staticmethod
     def create_grid(size: int) -> list:
