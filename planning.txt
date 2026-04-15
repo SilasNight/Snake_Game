@@ -14,8 +14,12 @@ patterns for the snake that are unlocked based on total score
 # Needed things
 Random food locations
 Food not spawning on the snake
-Making the snake.
+Making the snake. Check LOL
 The snake can't touch itself
 Snake grows as it eats
 Snake can't touch walls
+
+# Bug fixes and optimization
+make it so that only the end of the tail is redrawn not the whole tail
+make the first piece of the tail not glitch into the snakes head
 

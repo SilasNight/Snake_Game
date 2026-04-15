@@ -12,13 +12,16 @@ class Game:
         # Setup main Menu
         # self.settings_canvas = tk.Canvas(self.window)
 
-        self.tail_length = 15
+        self.tail_length = 100
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
 
         self.small = 16
         self.medium = 21
         self.Large = 26
+
+        self.move_direction = "Up"
+        self.move_next = "Up"
 
         self.difficulty = self.small
         self.create_grid(10)
@@ -33,10 +36,12 @@ class Game:
         self.draw_grid()
 
         # Controls
-        self.window.bind("<Right>", lambda a: self.move_right())
-        self.window.bind("<Left>", lambda a: self.move_left())
-        self.window.bind("<Up>", lambda a: self.move_up())
-        self.window.bind("<Down>", lambda a: self.move_down())
+        self.window.bind("<Right>", lambda a: self.right())
+        self.window.bind("<Left>", lambda a: self.left())
+        self.window.bind("<Up>", lambda a: self.up())
+        self.window.bind("<Down>", lambda a: self.down())
+
+        self.move()
 
         self.window.mainloop()
 
@@ -44,10 +49,8 @@ class Game:
         reverse_list = reversed(list(range(len(self.tail_segments))))
         for i in reverse_list:
             if i == 0:
-                print("ping")
                 self.tail_segments[i][0] = self.position
             else:
-                print("pong")
                 self.tail_segments[i][0] = self.tail_segments[i - 1][0].copy()
             old = self.tail_segments[i]
             new = self.redraw_tail(old)
@@ -105,6 +108,30 @@ class Game:
             self.game_window.create_line(x, y, x, y + 790, fill="grey")
             x += block
 
+    def move(self):
+        horizontal = ["Left", "Right"]
+        vertical = ["Up", "Down"]
+
+        if self.move_direction != self.move_next:
+            if self.move_direction in horizontal:
+                if self.move_next not in horizontal:
+                    self.move_direction = self.move_next
+            else:
+                if self.move_next not in vertical:
+                    self.move_direction = self.move_next
+
+        match self.move_direction:
+            case "Up":
+                self.move_up()
+            case "Down":
+                self.move_down()
+            case "Right":
+                self.move_right()
+            case "Left":
+                self.move_left()
+
+        self.window.after(100, self.move)
+
     def move_right(self):
         self.move_tail()
         if self.position[0] == self.difficulty - 1:
@@ -136,6 +163,18 @@ class Game:
         else:
             self.position[1] += 1
         self.redraw()
+
+    def up(self):
+        self.move_next = "Up"
+
+    def down(self):
+        self.move_next = "Down"
+
+    def right(self):
+        self.move_next = "Right"
+
+    def left(self):
+        self.move_next = "Left"
 
     @staticmethod
     def create_grid(size: int) -> list:
