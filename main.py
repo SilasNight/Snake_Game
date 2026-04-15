@@ -12,7 +12,7 @@ class Game:
         # Setup main Menu
         # self.settings_canvas = tk.Canvas(self.window)
 
-        self.tail_length = 4
+        self.tail_length = 15
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
 
@@ -27,7 +27,7 @@ class Game:
 
         self.last_drawn = self.draw_block(self.position)
 
-        self.tail_start_length = 4
+        self.tail_start_length = 10
         self.tail_segments = self.generate_tail()
 
         self.draw_grid()
@@ -41,14 +41,15 @@ class Game:
         self.window.mainloop()
 
     def move_tail(self):
-        for i in reversed(list(range(len(self.tail_segments)))):
+        reverse_list = reversed(list(range(len(self.tail_segments))))
+        for i in reverse_list:
             if i == 0:
+                print("ping")
                 self.tail_segments[i][0] = self.position
             else:
-                print(self.tail_segments[i][0])
-                self.tail_segments[i][0] = self.tail_segments[i - 1][0]
-                print(self.tail_segments[i][0])
-            old = self.tail_segments[i][1]
+                print("pong")
+                self.tail_segments[i][0] = self.tail_segments[i - 1][0].copy()
+            old = self.tail_segments[i]
             new = self.redraw_tail(old)
             self.tail_segments[i][1] = new
 
@@ -70,8 +71,8 @@ class Game:
         self.last_drawn = self.draw_block(self.position)
 
     def redraw_tail(self, old):
-        self.game_window.delete(old)
-        new = self.draw_block(self.position)
+        self.game_window.delete(old[1])
+        new = self.draw_block(old[0])
         return new
 
     def draw_block(self, position: list, colour: str = "blue") -> int:
@@ -105,36 +106,36 @@ class Game:
             x += block
 
     def move_right(self):
+        self.move_tail()
         if self.position[0] == self.difficulty - 1:
             self.position[0] = 0
         else:
             self.position[0] += 1
         self.redraw()
-        self.move_tail()
 
     def move_left(self):
+        self.move_tail()
         if self.position[0] == 0:
             self.position[0] = self.difficulty - 1
         else:
             self.position[0] -= 1
         self.redraw()
-        self.move_tail()
 
     def move_up(self):
+        self.move_tail()
         if self.position[1] == 0:
             self.position[1] = self.difficulty - 1
         else:
             self.position[1] -= 1
         self.redraw()
-        self.move_tail()
 
     def move_down(self):
+        self.move_tail()
         if self.position[1] == self.difficulty - 1:
             self.position[1] = 0
         else:
             self.position[1] += 1
         self.redraw()
-        self.move_tail()
 
     @staticmethod
     def create_grid(size: int) -> list:
