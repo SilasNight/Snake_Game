@@ -20,5 +20,4 @@ Snake grows as it eats
 Snake can't touch walls
 
 # Bug fixes and optimization
-make it so that only the end of the tail is redrawn not the whole tail
 
