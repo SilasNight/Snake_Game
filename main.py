@@ -120,6 +120,8 @@ class Game:
                 if self.move_next not in vertical:
                     self.move_direction = self.move_next
 
+        self.move_tail()
+
         match self.move_direction:
             case "Up":
                 self.move_up()
@@ -130,10 +132,9 @@ class Game:
             case "Left":
                 self.move_left()
 
-        self.window.after(100, self.move)
+        self.window.after(ms=100, func=self.move)
 
     def move_right(self):
-        self.move_tail()
         if self.position[0] == self.difficulty - 1:
             self.position[0] = 0
         else:
@@ -141,7 +142,6 @@ class Game:
         self.redraw()
 
     def move_left(self):
-        self.move_tail()
         if self.position[0] == 0:
             self.position[0] = self.difficulty - 1
         else:
@@ -149,7 +149,6 @@ class Game:
         self.redraw()
 
     def move_up(self):
-        self.move_tail()
         if self.position[1] == 0:
             self.position[1] = self.difficulty - 1
         else:
@@ -157,7 +156,6 @@ class Game:
         self.redraw()
 
     def move_down(self):
-        self.move_tail()
         if self.position[1] == self.difficulty - 1:
             self.position[1] = 0
         else:
