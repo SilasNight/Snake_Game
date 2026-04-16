@@ -20,4 +20,6 @@ Snake grows as it eats
 Snake can't touch walls
 
 # Bug fixes and optimization
+make food not spawn on top of other food... Wouldn't actually be too bad, Maybe I change the colour and make
+mega food?
 

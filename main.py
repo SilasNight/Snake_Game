@@ -1,4 +1,5 @@
 import tkinter as tk
+import random
 
 
 class Game:
@@ -12,7 +13,7 @@ class Game:
         # Setup main Menu
         # self.settings_canvas = tk.Canvas(self.window)
 
-        self.tail_length = 4
+        self.tail_length = 10
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
 
@@ -34,16 +35,44 @@ class Game:
         self.tail_segments = self.generate_tail()
 
         self.draw_grid()
+        self.food = []
 
         # Controls
         self.window.bind("<Right>", lambda a: self.right())
         self.window.bind("<Left>", lambda a: self.left())
         self.window.bind("<Up>", lambda a: self.up())
         self.window.bind("<Down>", lambda a: self.down())
+        self.window.bind("<f>", lambda a: self.spawn_food())
 
         self.move()
 
         self.window.mainloop()
+
+    def spawn_food(self):
+        tries = 0
+        while True:
+            tries += 1
+            print(tries)
+            x = random.randint(0, self.difficulty - 1)
+            y = random.randint(0, self.difficulty - 1)
+
+            coordinate = [x, y]
+            free = True
+
+            if coordinate != self.position:
+                for segment in self.tail_segments:
+                    position, draw_id = segment
+                    if coordinate == position:
+                        free = False
+            else:
+                free = False
+
+            if free:
+                break
+
+        food_id = self.draw_block(coordinate, "red")
+        food_item = [coordinate, food_id]
+        self.food.append(food_item)
 
     def move_tail(self):
         index = len(self.tail_segments) - 1
