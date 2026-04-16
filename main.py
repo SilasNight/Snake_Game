@@ -12,7 +12,7 @@ class Game:
         # Setup main Menu
         # self.settings_canvas = tk.Canvas(self.window)
 
-        self.tail_length = 100
+        self.tail_length = 4
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
 
@@ -49,7 +49,7 @@ class Game:
         reverse_list = reversed(list(range(len(self.tail_segments))))
         for i in reverse_list:
             if i == 0:
-                self.tail_segments[i][0] = self.position
+                self.tail_segments[i][0] = self.position.copy()
             else:
                 self.tail_segments[i][0] = self.tail_segments[i - 1][0].copy()
             old = self.tail_segments[i]
