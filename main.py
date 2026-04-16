@@ -46,15 +46,12 @@ class Game:
         self.window.mainloop()
 
     def move_tail(self):
-        reverse_list = reversed(list(range(len(self.tail_segments))))
-        for i in reverse_list:
-            if i == 0:
-                self.tail_segments[i][0] = self.position.copy()
-            else:
-                self.tail_segments[i][0] = self.tail_segments[i - 1][0].copy()
-            old = self.tail_segments[i]
-            new = self.redraw_tail(old)
-            self.tail_segments[i][1] = new
+        index = len(self.tail_segments) - 1
+        last_segment = self.tail_segments[index].copy()
+        self.tail_segments.pop(index)
+        last_segment[0] = self.position.copy()
+        new_segment = self.redraw_tail(last_segment)
+        self.tail_segments.insert(0, new_segment)
 
     def generate_tail(self):
         output = []
@@ -64,7 +61,6 @@ class Game:
             y += 1
 
             y += i
-            print(x, y)
             temp = self.draw_block([x, y])
             output.append([[x, y], temp])
         return output
@@ -73,10 +69,11 @@ class Game:
         self.game_window.delete(self.last_drawn)
         self.last_drawn = self.draw_block(self.position)
 
-    def redraw_tail(self, old):
-        self.game_window.delete(old[1])
-        new = self.draw_block(old[0])
-        return new
+    def redraw_tail(self, segment):
+        self.game_window.delete(segment[1])
+        new = self.draw_block(segment[0])
+        segment[1] = new
+        return segment
 
     def draw_block(self, position: list, colour: str = "blue") -> int:
         x, y = position
