@@ -15,6 +15,8 @@ class Game:
 
         self.score = 0
 
+        self.game_over = False
+
         self.tail_length = 4
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
@@ -53,7 +55,8 @@ class Game:
         tries = 0
         while True:
             tries += 1
-            print(tries)
+            if tries > 10:
+                print(tries)
             x = random.randint(0, self.difficulty - 1)
             y = random.randint(0, self.difficulty - 1)
 
@@ -87,6 +90,11 @@ class Game:
 
         if food_found:
             self.eat_food(food_index)
+
+    def tail_check(self):
+        for co_ordinate, block_id in self.tail_segments:
+            if self.position == co_ordinate:
+                self.game_over = True
 
     def eat_food(self, index: int):
         co_ordinate, block_id = self.food[index]
@@ -191,11 +199,15 @@ class Game:
                 self.move_left()
 
         self.food_check()
+        self.tail_check()
 
         # Pycharm my IDE is putting a type error on this.
         # But it works, so I am suppressing the error
-        # noinspection PyTypeChecker
-        self.window.after(ms=100, func=self.move)
+        if not self.game_over:
+            # noinspection PyTypeChecker
+            self.window.after(ms=100, func=self.move)
+        else:
+            print(f"Game Over\nScore: {self.score}")
 
     def move_right(self):
         if self.position[0] == self.difficulty - 1:

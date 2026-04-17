@@ -4,19 +4,22 @@
 Difficulty settings, Change speed + map size
 Music settings? XD, Find random music to use
 Colour settings?
-Score system
+Score system ✔
 boundry settings walls/no walls
-Accounts
+Account based settings
+Accounts with passwords and encryption for protection XD
+Emails to get accounts back if passwords forgotten
+ID Validation and encryption XD
 SQL to handle the accounts/settings/leaderboard/person-best
 patterns for the snake that are unlocked based on total score
 
 
 # Needed things
-Random food locations
-Food not spawning on the snake
-Making the snake. Check LOL
-The snake can't touch itself
-Snake grows as it eats
+Random food locations ✔
+Food not spawning on the snake ✔
+Making the snake. ✔ LOL
+The snake can't touch itself ✔
+Snake grows as it eats ✔
 Snake can't touch walls
 
 # Bug fixes and optimization
