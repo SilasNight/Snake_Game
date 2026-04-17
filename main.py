@@ -13,7 +13,7 @@ class Game:
         # Setup main Menu
         # self.settings_canvas = tk.Canvas(self.window)
 
-        self.tail_length = 10
+        self.tail_length = 4
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
 
@@ -73,6 +73,24 @@ class Game:
         food_id = self.draw_block(coordinate, "red")
         food_item = [coordinate, food_id]
         self.food.append(food_item)
+
+    def food_check(self):
+        food_found = False
+        food_index = "Bad"
+        for index, food in enumerate(self.food):
+            co_ordinate, block_id = food
+            if self.position == co_ordinate:
+                food_found = True
+                food_index = index
+                break
+
+        if food_found:
+            self.eat_food(food_index)
+
+    def eat_food(self, index: int):
+        co_ordinate, block_id = self.food[index]
+        self.game_window.delete(block_id)
+        self.food.pop(index)
 
     def move_tail(self):
         index = len(self.tail_segments) - 1
@@ -157,6 +175,8 @@ class Game:
                 self.move_right()
             case "Left":
                 self.move_left()
+
+        self.food_check()
 
         self.window.after(ms=100, func=self.move)
 
