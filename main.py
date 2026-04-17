@@ -4,6 +4,8 @@ import random
 
 class Game:
     def __init__(self):
+
+        # Setup the basic window
         self.window = tk.Tk()
         self.window.title("Snake Game - Python (Score: 0)")
         self.window.geometry("800x800")
@@ -13,22 +15,24 @@ class Game:
         # Setup main Menu
         # self.settings_canvas = tk.Canvas(self.window)
 
+        # Setting up basic game states
         self.score = 0
-
         self.game_over = False
-
+        self.food_amount = 670
+        self.growth = False
+        self.death = False
         self.tail_length = 4
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
 
         self.small = 16
         self.medium = 21
-        self.Large = 26
+        self.large = 26
 
         self.move_direction = "Up"
         self.move_next = "Up"
 
-        self.difficulty = self.small
+        self.difficulty = self.large
         self.create_grid(10)
         self.block_size = 790/self.difficulty
         self.position = [0, 0]
@@ -52,31 +56,53 @@ class Game:
         self.window.mainloop()
 
     def spawn_food(self):
+        """
+        Spawns a single piece of food somewhere on the map
+        """
+
+        breakout = False
         tries = 0
         while True:
-            tries += 1
-            if tries > 10:
-                print(tries)
+            # Choose a random place on the map
             x = random.randint(0, self.difficulty - 1)
             y = random.randint(0, self.difficulty - 1)
-
             coordinate = [x, y]
+
+            # This is just something to check for performance
+            tries += 1
+
+            if tries > 1000:
+                breakout = True
+                break
+
             free = True
 
             if coordinate != self.position:
+                # Make sure it doesn't spawn on top of a piece of the tail
                 for segment in self.tail_segments:
                     position, draw_id = segment
                     if coordinate == position:
                         free = False
+                        break
+
+                # Make sure the food doesn't spawn on top of food
+                for food in self.food:
+                    co_ordinate, block_id = food
+                    if coordinate == co_ordinate:
+                        free = False
+                        break
+
             else:
                 free = False
 
             if free:
                 break
 
-        food_id = self.draw_block(coordinate, "red")
-        food_item = [coordinate, food_id]
-        self.food.append(food_item)
+        print(tries)
+        if not breakout:
+            food_id = self.draw_block(coordinate, "red")
+            food_item = [coordinate, food_id]
+            self.food.append(food_item)
 
     def food_check(self):
         food_found = False
@@ -100,7 +126,10 @@ class Game:
         co_ordinate, block_id = self.food[index]
         self.game_window.delete(block_id)
         self.food.pop(index)
-        self.grow_tail()
+
+        if self.growth:
+            self.grow_tail()
+
         self.score += 1
         self.window.title(f"Snake Game - Python (Score: {self.score})")
 
@@ -172,7 +201,7 @@ class Game:
             x += block
 
     def move(self):
-        if len(self.food) < 3:
+        if len(self.food) < self.food_amount:
             self.spawn_food()
 
         horizontal = ["Left", "Right"]
@@ -199,7 +228,9 @@ class Game:
                 self.move_left()
 
         self.food_check()
-        self.tail_check()
+
+        if self.death:
+            self.tail_check()
 
         # Pycharm my IDE is putting a type error on this.
         # But it works, so I am suppressing the error
