@@ -161,6 +161,9 @@ class Game:
             x += block
 
     def move(self):
+        if len(self.food) < 3:
+            self.spawn_food()
+
         horizontal = ["Left", "Right"]
         vertical = ["Up", "Down"]
 
@@ -186,6 +189,9 @@ class Game:
 
         self.food_check()
 
+        # Pycharm my IDE is putting a type error on this.
+        # But it works, so I am suppressing the error
+        # noinspection PyTypeChecker
         self.window.after(ms=100, func=self.move)
 
     def move_right(self):
