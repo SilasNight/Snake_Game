@@ -91,6 +91,14 @@ class Game:
         co_ordinate, block_id = self.food[index]
         self.game_window.delete(block_id)
         self.food.pop(index)
+        self.grow_tail()
+
+    def grow_tail(self):
+        x = y = self.difficulty * 2
+        co_ordinates = [x, y]
+        block_id = self.draw_block(co_ordinates)
+        new_tail_piece = [co_ordinates, block_id]
+        self.tail_segments.append(new_tail_piece)
 
     def move_tail(self):
         index = len(self.tail_segments) - 1
