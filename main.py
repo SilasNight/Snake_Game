@@ -5,13 +5,15 @@ import random
 class Game:
     def __init__(self):
         self.window = tk.Tk()
-        self.window.title("Snake Game - Python")
+        self.window.title("Snake Game - Python (Score: 0)")
         self.window.geometry("800x800")
         self.window.resizable(False, False)
         self.window.config(bg="white")
 
         # Setup main Menu
         # self.settings_canvas = tk.Canvas(self.window)
+
+        self.score = 0
 
         self.tail_length = 4
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
@@ -42,7 +44,6 @@ class Game:
         self.window.bind("<Left>", lambda a: self.left())
         self.window.bind("<Up>", lambda a: self.up())
         self.window.bind("<Down>", lambda a: self.down())
-        self.window.bind("<f>", lambda a: self.spawn_food())
 
         self.move()
 
@@ -92,6 +93,8 @@ class Game:
         self.game_window.delete(block_id)
         self.food.pop(index)
         self.grow_tail()
+        self.score += 1
+        self.window.title(f"Snake Game - Python (Score: {self.score})")
 
     def grow_tail(self):
         x = y = self.difficulty * 2
