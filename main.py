@@ -18,10 +18,13 @@ class Game:
         # Setting up basic game states
         self.score = 0
         self.game_over = False
-        self.food_amount = 670
-        self.growth = False
-        self.death = False
+        self.food_amount = 3
+        self.growth = True
+        self.death = True
         self.tail_length = 4
+        self.game_speed = 200
+        self.food_colour = "red4"
+        self.snake_colour = "lawn green"
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
 
@@ -32,7 +35,7 @@ class Game:
         self.move_direction = "Up"
         self.move_next = "Up"
 
-        self.difficulty = self.large
+        self.difficulty = self.small
         self.create_grid(10)
         self.block_size = 790/self.difficulty
         self.position = [0, 0]
@@ -100,7 +103,7 @@ class Game:
 
         print(tries)
         if not breakout:
-            food_id = self.draw_block(coordinate, "red")
+            food_id = self.draw_block(coordinate, "red4")
             food_item = [coordinate, food_id]
             self.food.append(food_item)
 
@@ -121,6 +124,10 @@ class Game:
         for co_ordinate, block_id in self.tail_segments:
             if self.position == co_ordinate:
                 self.game_over = True
+                display_colour = "Red"
+                self.game_window.create_text(400, 150, text="Game Over", fill=display_colour, font=("Arial", 100))
+                self.game_window.create_text(400, 275, text="Score:", fill=display_colour, font=("Arial", 100))
+                self.game_window.create_text(400, 425, text=self.score, fill=display_colour, font=("Arial", 100))
 
     def eat_food(self, index: int):
         co_ordinate, block_id = self.food[index]
@@ -162,11 +169,11 @@ class Game:
 
     def redraw(self):
         self.game_window.delete(self.last_drawn)
-        self.last_drawn = self.draw_block(self.position)
+        self.last_drawn = self.draw_block(self.position, self.snake_colour)
 
     def redraw_tail(self, segment):
         self.game_window.delete(segment[1])
-        new = self.draw_block(segment[0])
+        new = self.draw_block(segment[0], self.snake_colour)
         segment[1] = new
         return segment
 
@@ -236,7 +243,7 @@ class Game:
         # But it works, so I am suppressing the error
         if not self.game_over:
             # noinspection PyTypeChecker
-            self.window.after(ms=100, func=self.move)
+            self.window.after(ms=self.game_speed, func=self.move)
         else:
             print(f"Game Over\nScore: {self.score}")
 
