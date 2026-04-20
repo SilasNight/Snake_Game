@@ -18,11 +18,11 @@ class Game:
         # Setting up basic game states
         self.score = 0
         self.game_over = False
-        self.food_amount = 3
-        self.growth = True
-        self.death = True
+        self.food_amount = 1000000
+        self.growth = False
+        self.death = False
         self.tail_length = 4
-        self.game_speed = 200
+        self.game_speed = 1
         self.food_colour = "red4"
         self.snake_colour = "lawn green"
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
@@ -35,7 +35,7 @@ class Game:
         self.move_direction = "Up"
         self.move_next = "Up"
 
-        self.difficulty = self.small
+        self.difficulty = 50
         self.create_grid(10)
         self.block_size = 790/self.difficulty
         self.position = [0, 0]
