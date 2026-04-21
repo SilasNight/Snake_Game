@@ -5,7 +5,7 @@ import random
 class Game:
     def __init__(self):
 
-        # Setup the basic window
+        # Set up the basic window
         self.window = tk.Tk()
         self.window.title("Snake Game - Python (Score: 0)")
         self.window.geometry("800x800")
@@ -18,15 +18,17 @@ class Game:
         # Setting up basic game states
         self.score = 0
         self.game_over = False
-        self.food_amount = 1000000
-        self.growth = False
-        self.death = False
+        self.food_amount = 3
+        self.growth = True
+        self.death = True
         self.tail_length = 4
-        self.game_speed = 1
+        self.game_speed = 200
         self.food_colour = "red4"
         self.snake_colour = "lawn green"
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
         self.game_window.place(x=-1, y=-1)
+        self.restart_button = tk.Button(self.game_window, text="Restart", command=self.restart)
+        self.game_end_id = []
 
         self.small = 16
         self.medium = 21
@@ -35,7 +37,7 @@ class Game:
         self.move_direction = "Up"
         self.move_next = "Up"
 
-        self.difficulty = 50
+        self.difficulty = 16
         self.create_grid(10)
         self.block_size = 790/self.difficulty
         self.position = [0, 0]
@@ -58,25 +60,58 @@ class Game:
 
         self.window.mainloop()
 
+    def restart(self):
+        self.move_direction = "Up"
+        self.move_next = "Up"
+        self.game_over = False
+        self.score = 0
+        self.position = [0, 0]
+        self.clear_tail()
+        self.clear_food()
+        self.clear_words()
+        self.restart_button.place_forget()
+        self.move()
+
+    def clear_words(self):
+        for words in self.game_end_id:
+            self.game_window.delete(words)
+
+    def clear_food(self):
+        for food in self.food:
+            self.game_window.delete(food[1])
+
+        self.food = []
+
+    def clear_tail(self):
+        for segment in self.tail_segments:
+            self.game_window.delete(segment[1])
+
+        self.tail_segments = self.generate_tail()
+
     def spawn_food(self):
         """
         Spawns a single piece of food somewhere on the map
         """
+        total_blocks = self.difficulty * self.difficulty
+        half = int(total_blocks/2)
+        blocks_used = 1 + len(self.tail_segments) + len(self.food) + self.tail_start_length
+        print(blocks_used)
 
-        breakout = False
-        tries = 0
+        if blocks_used > half:
+            coordinate = self.find_via_grid()
+        else:
+            coordinate = self.find_via_random()
+
+        food_id = self.draw_block(coordinate, "red4")
+        food_item = [coordinate, food_id]
+        self.food.append(food_item)
+
+    def find_via_random(self):
         while True:
             # Choose a random place on the map
             x = random.randint(0, self.difficulty - 1)
             y = random.randint(0, self.difficulty - 1)
             coordinate = [x, y]
-
-            # This is just something to check for performance
-            tries += 1
-
-            if tries > 1000:
-                breakout = True
-                break
 
             free = True
 
@@ -101,11 +136,57 @@ class Game:
             if free:
                 break
 
-        print(tries)
-        if not breakout:
-            food_id = self.draw_block(coordinate, "red4")
-            food_item = [coordinate, food_id]
-            self.food.append(food_item)
+        return coordinate
+
+    def find_via_grid(self) -> list:
+        """
+        Sometimes the amount of tries is just too many. This is to handle those conditions.
+        This will regulate the amount of resources the game uses. This is more intense than
+        a possible one off random selection.
+
+        This function goes through the snake and the food lists and checks to see where the gaps are.
+        it then picks one of the open spots at random and returns that.
+        :return:
+        """
+        # Create a grid that can be used to map out the game space
+        map_grid = self.create_grid(self.difficulty)
+
+        # Map the tail-pieces
+        for piece in self.tail_segments:
+            co_ordinates, block_id = piece
+            x, y = co_ordinates
+            map_grid[x][y] = 1
+
+        # Map food pieces
+        for food in self.food:
+            co_ordinates, block_id = food
+            x, y = co_ordinates
+            map_grid[x][y] = 1
+
+        # Map snake head position
+        x, y = self.position
+        map_grid[x][y] = 1
+
+        # Find all available spots on the map
+        available_co_ordinates = []
+        for x, x_line in enumerate(map_grid):
+            for y, y_item in enumerate(x_line):
+                if y_item == 0:
+                    temp = [x, y]
+                    available_co_ordinates.append(temp.copy())
+
+        # If there are available spots return one random one.
+        if len(available_co_ordinates) == 0:
+            if len(self.food) == 0:
+                self.game_won()
+                return [-2, -2]
+            return [-2, -2]
+        else:
+            free_spot = random.choice(available_co_ordinates)
+            return free_spot
+
+    def game_won(self):
+        pass
 
     def food_check(self):
         food_found = False
@@ -125,9 +206,14 @@ class Game:
             if self.position == co_ordinate:
                 self.game_over = True
                 display_colour = "Red"
-                self.game_window.create_text(400, 150, text="Game Over", fill=display_colour, font=("Arial", 100))
-                self.game_window.create_text(400, 275, text="Score:", fill=display_colour, font=("Arial", 100))
-                self.game_window.create_text(400, 425, text=self.score, fill=display_colour, font=("Arial", 100))
+                temp = self.game_window.create_text(400, 150, text="Game Over", fill=display_colour,
+                                                    font=("Arial", 100))
+                self.game_end_id.append(temp)
+                temp = self.game_window.create_text(400, 275, text="Score:", fill=display_colour, font=("Arial", 100))
+                self.game_end_id.append(temp)
+                temp = self.game_window.create_text(400, 425, text=self.score, fill=display_colour, font=("Arial", 100))
+                self.game_end_id.append(temp)
+                self.restart_button.place(x=400, y=500)
 
     def eat_food(self, index: int):
         co_ordinate, block_id = self.food[index]
@@ -157,13 +243,11 @@ class Game:
 
     def generate_tail(self):
         output = []
+        x, y = self.position
+        y += 1
         for i in range(self.tail_length):
-            x, y = self.position
-
-            y += 1
-
             y += i
-            temp = self.draw_block([x, y])
+            temp = self.draw_block([x, y], self.snake_colour)
             output.append([[x, y], temp])
         return output
 
@@ -293,7 +377,7 @@ class Game:
         line = [x-x for x in line]
         grid = []
         for i in range(size):
-            grid.append(line)
+            grid.append(line.copy())
 
         return grid
 
