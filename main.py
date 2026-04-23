@@ -1,5 +1,6 @@
 import tkinter as tk
 import random
+import time
 
 
 class Game:
@@ -21,34 +22,46 @@ class Game:
         self.food_amount = 3
         self.growth = True
         self.death = True
-        self.autopilot = False
+        self.autopilot = True
         self.tail_length = 4
-        self.game_speed = 150
+        self.game_speed = 50
         self.food_colour = "red4"
         self.snake_colour = "lawn green"
 
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
 
         # Pause screen setup
-        self.pause_screen = tk.Canvas(self.game_window, bg="white", height=600, width=200)
+        colour = "gray90"
+        self.pause = False
+        self.pause_screen = tk.Canvas(self.game_window, bg=colour, height=600, width=200, highlightthickness=1,
+                                      highlightbackground="black")
 
-        self.food_title = tk.Label(self.pause_screen, bg="white", text="Food Amount")
+        self.title = tk.Label(self.pause_screen, bg=colour, text="Options", font=("Helvetica", 12, "bold"))
+
+        self.food_title = tk.Label(self.pause_screen, bg=colour, text="Food Amount")
         self.food_box = tk.Entry(self.pause_screen, bg="white")
 
-        self.tail_title = tk.Label(self.pause_screen, bg="white", text="Tail Start Length")
+        self.tail_title = tk.Label(self.pause_screen, bg=colour, text="Tail Start Length")
         self.tail_box = tk.Entry(self.pause_screen, bg="white")
 
-        self.speed_title = tk.Label(self.pause_screen, bg="white", text="Game Speed")
+        self.speed_title = tk.Label(self.pause_screen, bg=colour, text="Game Speed")
         self.speed_box = tk.Entry(self.pause_screen, bg="white")
 
-        self.growth_toggle = tk.Button(self.pause_screen, text="Growth", bg="white", fg="green")
-        self.death_toggle = tk.Button(self.pause_screen, text="Death", bg="white", fg="green")
-        self.autopilot_toggle = tk.Button(self.pause_screen, text="Auto Pilot", bg="white", fg="red")
+        self.growth_toggle = tk.Button(self.pause_screen, text="Growth", bg=colour, fg="green", width=16,
+                                       command=self.growth_button)
+        self.death_toggle = tk.Button(self.pause_screen, text="Death", bg=colour, fg="green", width=16,
+                                      command=self.death_button)
+        self.autopilot_toggle = tk.Button(self.pause_screen, text="Auto Pilot", bg=colour, fg="red", width=16,
+                                          command=self.auto_pilot_button)
 
-        self.unpause_button = tk.Button(self.pause_screen, text="Unpause", bg="white")
+        self.unpause_active = tk.Button(self.pause_screen, text="Unpause", bg=colour, width=16,
+                                        command=self.unpause_button)
+        self.restart_active = tk.Button(self.pause_screen, text="Restart", bg=colour, width=16,
+                                        command=self.restart_button)
 
+        self.title.pack(pady=20)
         self.food_title.pack()
-        self.food_box.pack()
+        self.food_box.pack(padx=20)
         self.tail_title.pack()
         self.tail_box.pack()
         self.speed_title.pack()
@@ -56,9 +69,10 @@ class Game:
         self.growth_toggle.pack()
         self.death_toggle.pack()
         self.autopilot_toggle.pack()
-        self.unpause_button.pack()
+        self.restart_active.pack()
+        self.unpause_active.pack(padx=20, pady=20)
 
-        self.game_window.bind("<Escape>", lambda a: self.pause_menu())
+        self.window.bind("<Escape>", lambda a: self.pause_menu())
         # Pause screen end
 
         self.game_window.place(x=-1, y=-1)
@@ -345,8 +359,108 @@ class Game:
             else:
                 self.move_next = "Up"
 
+    def update_menu(self):
+        self.food_box.delete(0, tk.END)
+        self.food_box.insert(0, str(self.food_amount))
+        self.food_box.update()
+
+        self.tail_box.delete(0, tk.END)
+        self.tail_box.insert(0, str(self.tail_start_length))
+        self.tail_box.update()
+
+        self.speed_box.delete(0, tk.END)
+        self.speed_box.insert(0, str(self.game_speed))
+        self.speed_box.update()
+
+        if self.growth:
+            self.growth_toggle.config(fg="green")
+        else:
+            self.growth_toggle.config(fg="red")
+
+        if self.death:
+            self.death_toggle.config(fg="green")
+        else:
+            self.death_toggle.config(fg="red")
+
+        if self.autopilot:
+            self.autopilot_toggle.config(fg="green")
+        else:
+            self.autopilot_toggle.config(fg="red")
+
     def pause_menu(self):
-        pass
+        self.pause = True
+        self.update_menu()
+        self.pause_screen.place(x=200, y=200)
+
+    def growth_button(self):
+        if self.growth:
+            self.growth = False
+            self.growth_toggle.config(fg="red")
+            self.growth_toggle.update()
+        else:
+            self.growth = True
+            self.growth_toggle.config(fg="green")
+            self.growth_toggle.update()
+
+    def death_button(self):
+        if self.death:
+            self.death = False
+            self.death_toggle.config(fg="red")
+            self.death_toggle.update()
+        else:
+            self.death = True
+            self.death_toggle.config(fg="green")
+            self.death_toggle.update()
+
+    def auto_pilot_button(self):
+        if self.autopilot:
+            self.autopilot = False
+            self.autopilot_toggle.config(fg="red")
+            self.autopilot_toggle.update()
+        else:
+            self.autopilot = True
+            self.autopilot_toggle.config(fg="green")
+            self.autopilot_toggle.update()
+
+    def restart_button(self):
+        self.update_settings()
+        self.pause = False
+        self.restart()
+
+    def unpause_button(self):
+        # food tail speed
+        self.update_settings()
+        self.pause = False
+        self.pause_screen.place_forget()
+        self.count_down_start()
+
+    def update_settings(self):
+        food = int(self.food_box.get())
+        self.food_amount = food
+
+        tail = int(self.tail_box.get())
+        self.tail_start_length = tail
+
+        speed = int(self.speed_box.get())
+        self.game_speed = speed
+
+    def hide_menu(self):
+        self.pause_screen.place_forget()
+
+    def count_down_start(self):
+        temp = self.game_window.create_text(400, 425, text="3", fill="red", font=("Arial", 100))
+        self.game_window.update()
+        time.sleep(1)
+        self.game_window.delete(temp)
+        temp = self.game_window.create_text(400, 425, text="2", fill="red", font=("Arial", 100))
+        self.game_window.update()
+        time.sleep(1)
+        self.game_window.delete(temp)
+        temp = self.game_window.create_text(400, 425, text="1", fill="red", font=("Arial", 100))
+        self.game_window.update()
+        time.sleep(1)
+        self.game_window.delete(temp)
+        self.move()
 
     def move(self):
         if self.autopilot:
@@ -385,11 +499,12 @@ class Game:
 
         # Pycharm my IDE is putting a type error on this.
         # But it works, so I am suppressing the error
-        if not self.game_over:
-            # noinspection PyTypeChecker
-            self.window.after(ms=self.game_speed, func=self.move)
-        else:
-            print(f"Game Over\nScore: {self.score}")
+        if not self.pause:
+            if not self.game_over:
+                # noinspection PyTypeChecker
+                self.window.after(ms=self.game_speed, func=self.move)
+            else:
+                print(f"Game Over\nScore: {self.score}")
 
     def move_right(self):
         if self.position[0] == self.map_size - 1:

@@ -22,11 +22,14 @@ The snake can't touch itself ✔
 Snake grows as it eats ✔
 Snake can't touch walls
 Variable speed as the snake grows
-Display score
+Display score ✔
+Added settings menu ✔
+Successfully unpause and pause game ✔
+Add a timer to show exactly when the game starts to let the user make a small plan if they are in a tight spot ✔
 
 # Bug fixes and optimization
 make food not spawn on top of other food... ✔
 mega food? No XD
-Food spawning randomly is insanely inefficient Fix it
+Food spawning randomly is insanely inefficient Fix it ✔
 makeing food spawn off screen when there is no space is a bad idea. I need to change that.
 
