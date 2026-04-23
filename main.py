@@ -425,6 +425,7 @@ class Game:
     def restart_button(self):
         self.update_settings()
         self.pause = False
+        self.pause_screen.place_forget()
         self.restart()
 
     def unpause_button(self):
