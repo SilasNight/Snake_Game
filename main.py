@@ -21,11 +21,46 @@ class Game:
         self.food_amount = 3
         self.growth = True
         self.death = True
+        self.autopilot = False
         self.tail_length = 4
-        self.game_speed = 200
+        self.game_speed = 150
         self.food_colour = "red4"
         self.snake_colour = "lawn green"
+
         self.game_window = tk.Canvas(self.window, bg="white", height=800, width=800)
+
+        # Pause screen setup
+        self.pause_screen = tk.Canvas(self.game_window, bg="white", height=600, width=200)
+
+        self.food_title = tk.Label(self.pause_screen, bg="white", text="Food Amount")
+        self.food_box = tk.Entry(self.pause_screen, bg="white")
+
+        self.tail_title = tk.Label(self.pause_screen, bg="white", text="Tail Start Length")
+        self.tail_box = tk.Entry(self.pause_screen, bg="white")
+
+        self.speed_title = tk.Label(self.pause_screen, bg="white", text="Game Speed")
+        self.speed_box = tk.Entry(self.pause_screen, bg="white")
+
+        self.growth_toggle = tk.Button(self.pause_screen, text="Growth", bg="white", fg="green")
+        self.death_toggle = tk.Button(self.pause_screen, text="Death", bg="white", fg="green")
+        self.autopilot_toggle = tk.Button(self.pause_screen, text="Auto Pilot", bg="white", fg="red")
+
+        self.unpause_button = tk.Button(self.pause_screen, text="Unpause", bg="white")
+
+        self.food_title.pack()
+        self.food_box.pack()
+        self.tail_title.pack()
+        self.tail_box.pack()
+        self.speed_title.pack()
+        self.speed_box.pack()
+        self.growth_toggle.pack()
+        self.death_toggle.pack()
+        self.autopilot_toggle.pack()
+        self.unpause_button.pack()
+
+        self.game_window.bind("<Escape>", lambda a: self.pause_menu())
+        # Pause screen end
+
         self.game_window.place(x=-1, y=-1)
         self.restart_button = tk.Button(self.game_window, text="Restart", command=self.restart)
         self.game_end_id = []
@@ -37,9 +72,9 @@ class Game:
         self.move_direction = "Up"
         self.move_next = "Up"
 
-        self.difficulty = 16
+        self.map_size = 16
         self.create_grid(10)
-        self.block_size = 790/self.difficulty
+        self.block_size = 790/self.map_size
         self.position = [0, 0]
 
         self.last_drawn = self.draw_block(self.position)
@@ -92,25 +127,28 @@ class Game:
         """
         Spawns a single piece of food somewhere on the map
         """
-        total_blocks = self.difficulty * self.difficulty
+        total_blocks = self.map_size * self.map_size
         half = int(total_blocks/2)
         blocks_used = 1 + len(self.tail_segments) + len(self.food) + self.tail_start_length
-        print(blocks_used)
 
         if blocks_used > half:
             coordinate = self.find_via_grid()
         else:
             coordinate = self.find_via_random()
 
-        food_id = self.draw_block(coordinate, "red4")
-        food_item = [coordinate, food_id]
-        self.food.append(food_item)
+        if coordinate[1]:
+            food_id = self.draw_block(coordinate[0], "red4")
+            food_item = [coordinate[0], food_id]
+            self.food.append(food_item)
+        else:
+            if len(self.food) == 0:
+                self.game_won()
 
     def find_via_random(self):
         while True:
             # Choose a random place on the map
-            x = random.randint(0, self.difficulty - 1)
-            y = random.randint(0, self.difficulty - 1)
+            x = random.randint(0, self.map_size - 1)
+            y = random.randint(0, self.map_size - 1)
             coordinate = [x, y]
 
             free = True
@@ -136,7 +174,7 @@ class Game:
             if free:
                 break
 
-        return coordinate
+        return [coordinate, True]
 
     def find_via_grid(self) -> list:
         """
@@ -149,7 +187,7 @@ class Game:
         :return:
         """
         # Create a grid that can be used to map out the game space
-        map_grid = self.create_grid(self.difficulty)
+        map_grid = self.create_grid(self.map_size)
 
         # Map the tail-pieces
         for piece in self.tail_segments:
@@ -179,11 +217,11 @@ class Game:
         if len(available_co_ordinates) == 0:
             if len(self.food) == 0:
                 self.game_won()
-                return [-2, -2]
-            return [-2, -2]
+                return ["gg", False]
+            return ["gg", False]
         else:
             free_spot = random.choice(available_co_ordinates)
-            return free_spot
+            return [free_spot, True]
 
     def game_won(self):
         pass
@@ -227,9 +265,11 @@ class Game:
         self.window.title(f"Snake Game - Python (Score: {self.score})")
 
     def grow_tail(self):
-        x = y = self.difficulty * 2
+        index = len(self.tail_segments) - 1
+        segment = self.tail_segments[index]
+        x, y = segment[0]
         co_ordinates = [x, y]
-        block_id = self.draw_block(co_ordinates)
+        block_id = self.draw_block(co_ordinates, self.snake_colour)
         new_tail_piece = [co_ordinates, block_id]
         self.tail_segments.append(new_tail_piece)
 
@@ -277,7 +317,7 @@ class Game:
         return rectangle_id
 
     def draw_grid(self):
-        size = self.difficulty
+        size = self.map_size
         block = self.block_size
         x = 5
         y = 5
@@ -291,7 +331,27 @@ class Game:
             self.game_window.create_line(x, y, x, y + 790, fill="grey")
             x += block
 
+    def auto_move(self):
+        x, y = self.position
+        if y == 0:
+            if x % 2 == 0:
+                self.move_next = "Right"
+            else:
+                self.move_next = "Down"
+
+        if y == self.map_size - 1:
+            if x % 2 == 1:
+                self.move_next = "Right"
+            else:
+                self.move_next = "Up"
+
+    def pause_menu(self):
+        pass
+
     def move(self):
+        if self.autopilot:
+            self.auto_move()
+
         if len(self.food) < self.food_amount:
             self.spawn_food()
 
@@ -332,7 +392,7 @@ class Game:
             print(f"Game Over\nScore: {self.score}")
 
     def move_right(self):
-        if self.position[0] == self.difficulty - 1:
+        if self.position[0] == self.map_size - 1:
             self.position[0] = 0
         else:
             self.position[0] += 1
@@ -340,20 +400,20 @@ class Game:
 
     def move_left(self):
         if self.position[0] == 0:
-            self.position[0] = self.difficulty - 1
+            self.position[0] = self.map_size - 1
         else:
             self.position[0] -= 1
         self.redraw()
 
     def move_up(self):
         if self.position[1] == 0:
-            self.position[1] = self.difficulty - 1
+            self.position[1] = self.map_size - 1
         else:
             self.position[1] -= 1
         self.redraw()
 
     def move_down(self):
-        if self.position[1] == self.difficulty - 1:
+        if self.position[1] == self.map_size - 1:
             self.position[1] = 0
         else:
             self.position[1] += 1
