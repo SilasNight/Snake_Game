@@ -41,6 +41,9 @@ class Game:
         self.food_title = tk.Label(self.pause_screen, bg=colour, text="Food Amount")
         self.food_box = tk.Entry(self.pause_screen, bg="white")
 
+        self.game_size_title = tk.Label(self.pause_screen, bg=colour, text="Map Size")
+        self.game_size_box = tk.Entry(self.pause_screen, bg="white")
+
         self.tail_title = tk.Label(self.pause_screen, bg=colour, text="Tail Start Length")
         self.tail_box = tk.Entry(self.pause_screen, bg="white")
 
@@ -62,6 +65,8 @@ class Game:
         self.title.pack(pady=20)
         self.food_title.pack()
         self.food_box.pack(padx=20)
+        self.game_size_title.pack()
+        self.game_size_box.pack()
         self.tail_title.pack()
         self.tail_box.pack()
         self.speed_title.pack()
@@ -87,7 +92,6 @@ class Game:
         self.move_next = "Up"
 
         self.map_size = 16
-        self.create_grid(10)
         self.block_size = 790/self.map_size
         self.position = [0, 0]
 
@@ -364,6 +368,10 @@ class Game:
         self.food_box.insert(0, str(self.food_amount))
         self.food_box.update()
 
+        self.game_size_box.delete(0, tk.END)
+        self.game_size_box.insert(0, str(self.map_size))
+        self.game_size_box.update()
+
         self.tail_box.delete(0, tk.END)
         self.tail_box.insert(0, str(self.tail_start_length))
         self.tail_box.update()
@@ -438,6 +446,9 @@ class Game:
     def update_settings(self):
         food = int(self.food_box.get())
         self.food_amount = food
+
+        map_size = int(self.game_size_box.get())
+        self.map_size = map_size
 
         tail = int(self.tail_box.get())
         self.tail_start_length = tail

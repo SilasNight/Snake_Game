@@ -15,6 +15,7 @@ patterns for the snake that are unlocked based on total score
 
 
 # Needed things
+Refactor the snake to be a separate class
 Random food locations ✔
 Food not spawning on the snake ✔
 Making the snake. ✔ LOL
